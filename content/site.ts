@@ -1,22 +1,22 @@
 export const siteConfig = {
   couple: {
-    groomNickname: "Christian",
-    brideNickname: "Geneva",
-    groomFullName: "Christian",
-    brideFullName: "Geneva",
+    groomNickname: "Brandon",
+    brideNickname: "Sunshyne",
+    groomFullName: "Brandon",
+    brideFullName: "Sunshyne",
   },
   wedding: {
-    date: "March 2027",
-    dateISO: "2027-03-06T14:30:00+08:00",
-    endDateISO: "2027-03-06T22:00:00+08:00",
+    date: "August 14 2027",
+    dateISO: "2027-08-14T14:30:00+08:00",
+    endDateISO: "2027-08-14T14:30:00+08:00",
   },
   ceremony: {
-    venue: "Palawan, Philippines",
-    location: "Palawan, Philippines",
+    venue: "Davao City, Philippines",
+    location: "Davao City, Philippines",
   },
   reception: {
-    venue: "Palawan, Philippines",
-    location: "Palawan, Philippines",
+    venue: "Davao City, Philippines",
+    location: "Davao City, Philippines",
   },
 } as const;
 

@@ -36,7 +36,7 @@
     -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Pinyon+Script&family=Prata&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Lavishly+Yours&family=Pinyon+Script&family=Prata&family=Style+Script&display=swap" rel="stylesheet">
     
     <script>
       tailwind.config = {
@@ -45,6 +45,7 @@
             fontFamily: {
               serif: ['"Prata"', 'serif'],
               script: ['"Pinyon Script"', 'cursive'],
+              names: ['"Lavishly Yours"', '"Pinyon Script"', 'cursive'],
               body: ['"Cormorant Garamond"', 'serif'],
             },
             colors: {
@@ -88,10 +89,17 @@
         background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
       }
       
-      /* Ensure full height for layout */
-      body, html, #root {
+      /* Ensure full height for layout; invitation fits one screen */
+      html, body {
         height: 100%;
-        background-color: #Fdfcf8;
+        overflow: hidden;
+        overscroll-behavior: none;
+        background-color: #030712;
+      }
+      #root {
+        height: 100%;
+        overflow: hidden;
+        background-color: #030712;
       }
     </style>
   <script type="importmap">

@@ -5,8 +5,8 @@ import { siteConfig } from "@/content/site";
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://christian-and-geneva-save-the-date.vercel.app/";
 const canonicalUrl = siteUrl.replace(/\/$/, "");
 
-const desktopHero = "/image/linkPreview.jpg";
-const mobileHero = "/image/linkPreview.jpg";
+const desktopHero = "/LinkPreview.png";
+const mobileHero = "/LinkPreview.png";
 const eventImageUrl = `${canonicalUrl}${desktopHero}`;
 
 const coupleNames = `${siteConfig.couple.groomNickname} & ${siteConfig.couple.brideNickname}`;

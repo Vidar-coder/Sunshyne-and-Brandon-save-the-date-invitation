@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { InvitationDetails } from '../types';
-import PlaneTrail from './PlaneTrail';
 import { Users } from 'lucide-react';
+import CoupleParticleNames from './CoupleParticleNames';
 
 interface Props {
   details: InvitationDetails;
@@ -10,130 +10,642 @@ interface Props {
   onViewGuestBook: () => void;
 }
 
-const InvitationCard: React.FC<Props> = ({ details, onRSVP, guestCount, onViewGuestBook }) => {
+const INVITE_STARFIELD_VIDEO = encodeURI(
+  '/Fast Motion Night Full of Stars 4K Relaxing Screensaver 3 online video cutter com - Vlogs Ysu (1080p) (online-video-cutter.com).mp4'
+);
+
+const SPARKLE_LAYOUT = [
+  { top: '5%', left: '16%', size: 8, delay: 0, dur: 2.8 },
+  { top: '10%', left: '74%', size: 11, delay: 0.6, dur: 3.4 },
+  { top: '20%', left: '6%', size: 7, delay: 1.1, dur: 2.5 },
+  { top: '16%', left: '90%', size: 9, delay: 0.3, dur: 3.1 },
+  { top: '32%', left: '3%', size: 7, delay: 1.8, dur: 2.9 },
+  { top: '38%', left: '95%', size: 10, delay: 0.9, dur: 3.6 },
+  { top: '56%', left: '10%', size: 10, delay: 0.2, dur: 3.2 },
+  { top: '52%', left: '84%', size: 8, delay: 1.4, dur: 2.7 },
+  { top: '70%', left: '5%', size: 9, delay: 0.7, dur: 3.5 },
+  { top: '66%', left: '92%', size: 12, delay: 1.2, dur: 2.6 },
+  { top: '84%', left: '24%', size: 9, delay: 0.5, dur: 3.3 },
+  { top: '80%', left: '64%', size: 7, delay: 1.6, dur: 2.4 },
+  { top: '90%', left: '44%', size: 10, delay: 0.8, dur: 3.8 },
+  { top: '24%', left: '46%', size: 6, delay: 2, dur: 2.2 },
+  { top: '46%', left: '22%', size: 5, delay: 1.3, dur: 2.1 },
+  { top: '48%', left: '72%', size: 6, delay: 1.9, dur: 2.3 },
+  { top: '13%', left: '40%', size: 7, delay: 0.4, dur: 3 },
+  { top: '60%', left: '50%', size: 6, delay: 1.1, dur: 2.8 },
+  { top: '93%', left: '16%', size: 9, delay: 0.6, dur: 3.4 },
+  { top: '95%', left: '80%', size: 8, delay: 1.5, dur: 3.1 },
+] as const;
+
+/** Midnight of the wedding day in the Philippines. */
+const WEDDING_AT = new Date('2027-08-14T00:00:00+08:00');
+
+type TimeLeft = {
+  days: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+  arrived: boolean;
+};
+
+function getTimeLeft(from: Date, target: Date): TimeLeft {
+  const diff = Math.max(0, target.getTime() - from.getTime());
+  return {
+    days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+    hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
+    minutes: Math.floor((diff / (1000 * 60)) % 60),
+    seconds: Math.floor((diff / 1000) % 60),
+    arrived: diff <= 0,
+  };
+}
+
+function padUnit(value: number, size = 2) {
+  return String(value).padStart(size, '0');
+}
+
+function SparkleStar({
+  top,
+  left,
+  size,
+  delay,
+  dur,
+  variant = 'default',
+}: {
+  top: string;
+  left: string;
+  size: number;
+  delay: number;
+  dur: number;
+  variant?: 'default' | 'soft' | 'spark';
+}) {
+  const variantClass =
+    variant === 'soft' ? 'invite-star-soft' : variant === 'spark' ? 'invite-star-spark' : 'invite-star-default';
+
   return (
-    <div 
-      className="relative w-full h-full mx-auto flex flex-col justify-between sm:justify-center items-center text-ink px-2 md:px-4 lg:px-6"
-      style={{
-        backgroundImage: 'url(/image/background.png)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
-      }}
+    <svg
+      aria-hidden
+      viewBox="0 0 24 24"
+      className={`invite-star pointer-events-none absolute z-[25] text-[#fceabb] ${variantClass}`}
+      style={
+        {
+          top,
+          left,
+          width: size,
+          height: size,
+          '--delay': `${delay}s`,
+          '--dur': `${dur}s`,
+        } as React.CSSProperties
+      }
     >
-      {/* White overlay to reduce background visibility */}
-      <div className="absolute inset-0 bg-white/60 pointer-events-none z-0"></div>
-      
-      {/* Container for SVG Overlay - constrained to relative parent */}
-      <div className="absolute inset-0 overflow-visible pointer-events-none z-[5]">
-         <PlaneTrail />
-      </div>
+      <path
+        fill="currentColor"
+        d="M12 0.5l2.2 7.4L22 10l-7.8 2.1L12 20l-2.2-7.9L2 10l7.8-2.1L12 0.5z"
+      />
+      <path fill="#fff8dc" opacity="0.85" d="M12 4l1.1 3.8L17 9l-3.9 1.1L12 14l-1.1-3.9L7 9l3.9-1.2L12 4z" />
+    </svg>
+  );
+}
 
-      {/* Top Section: Location Stamp - Enhanced for Desktop */}
-      <div 
-        className="absolute top-0 right-0 sm:right-auto sm:top-8 sm:left-8 lg:top-12 lg:left-12 xl:top-16 xl:left-16 animate-fade-in-up z-10 scale-75 sm:scale-100 lg:scale-110 origin-top-right sm:origin-center transition-all duration-500 hover:scale-90 sm:hover:scale-110 lg:hover:scale-125 hover:-rotate-6 cursor-pointer group/stamp" 
-        style={{ animationDelay: '0.1s' }}
+function CountdownUnit({ value, label, digits = 2 }: { value: number; label: string; digits?: number }) {
+  const display = padUnit(value, digits);
+
+  return (
+    <div className="invite-count-unit relative flex flex-col items-center">
+      <span
+        key={display}
+        className="invite-tick invite-count-num font-serif font-semibold tabular-nums leading-none text-[#fffef8] [text-shadow:0_1px_2px_rgba(0,0,0,0.5),0_0_18px_rgba(255,248,220,0.45)]"
       >
-        <div className="border-2 border-gray-300 rounded-full p-3 sm:p-4 lg:p-5 xl:p-6 w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 xl:w-32 xl:h-32 flex items-center justify-center -rotate-12 opacity-80 shadow-lg shadow-gray-200/50 bg-gradient-to-br from-paper via-paper/90 to-taupe/30 backdrop-blur-sm transition-all duration-500 hover:bg-gradient-to-br hover:from-paper hover:via-gold/10 hover:to-taupe/40 hover:border-gold/60 hover:shadow-xl hover:shadow-gold/20 hover:opacity-100">
-             <div className="text-center pointer-events-none transition-transform duration-500 group-hover/stamp:scale-110">
-                 <p className="font-serif text-[9px] sm:text-[10px] lg:text-xs uppercase tracking-widest text-gray-600 group-hover/stamp:text-gold transition-colors duration-300">Est.</p>
-                 <p className="font-serif text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-ink group-hover/stamp:text-ink transition-all duration-300">2027</p>
-                 <p className="font-serif text-[7px] sm:text-[8px] lg:text-[9px] uppercase tracking-widest text-gray-600 group-hover/stamp:text-gold transition-colors duration-300">Philippines</p>
-             </div>
-        </div>
-      </div>
+        {display}
+      </span>
+      <span className="invite-count-label mt-1.5 font-serif uppercase text-[#fff8dc] sm:mt-2">
+        {label}
+      </span>
+    </div>
+  );
+}
 
-      {/* Main Content Group - Enhanced spacing for desktop */}
-      <div className="flex-grow flex flex-col justify-center items-center w-full z-20 mt-4 sm:mt-0 lg:mt-0">
-        
-        {/* SAVE THE DATE - Image replacement */}
-        <div className="flex flex-col items-center leading-none scale-90 sm:scale-100 lg:scale-105 xl:scale-110 origin-bottom group cursor-default animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
-          <img 
-            src="/image/savethedate.png" 
-            alt="Save the Date" 
-            className="w-auto h-auto max-w-full object-contain drop-shadow-md transition-all duration-700 ease-out group-hover:drop-shadow-lg"
+function CountdownColon() {
+  return (
+    <span className="invite-colon invite-count-colon select-none font-serif text-[#fceabb]" aria-hidden>
+      :
+    </span>
+  );
+}
+
+function OrnamentalStar({ className, gradId = 'inviteStarGrad' }: { className?: string; gradId?: string }) {
+  return (
+    <svg aria-hidden viewBox="0 0 24 24" className={className}>
+      <defs>
+        <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#fff8dc" />
+          <stop offset="45%" stopColor="#d4af37" />
+          <stop offset="100%" stopColor="#f5e6a8" />
+        </linearGradient>
+      </defs>
+      <path fill={`url(#${gradId})`} d="M12 1l2.5 8.2L22 11.5l-7.5 2.3L12 22l-2.5-8.2L2 11.5l7.5-2.3L12 1z" />
+    </svg>
+  );
+}
+
+const InvitationCard: React.FC<Props> = ({ details, onRSVP, guestCount, onViewGuestBook }) => {
+  const sparkles = useMemo(() => SPARKLE_LAYOUT, []);
+  const bgVideoRef = useRef<HTMLVideoElement>(null);
+  const [timeLeft, setTimeLeft] = useState<TimeLeft>(() => getTimeLeft(new Date(), WEDDING_AT));
+
+  useEffect(() => {
+    const tick = () => setTimeLeft(getTimeLeft(new Date(), WEDDING_AT));
+    tick();
+    const id = window.setInterval(tick, 1000);
+    return () => window.clearInterval(id);
+  }, []);
+
+  useEffect(() => {
+    const video = bgVideoRef.current;
+    if (!video) return;
+
+    video.muted = true;
+    video.loop = true;
+    video.playsInline = true;
+    video.defaultMuted = true;
+    video.setAttribute('playsinline', '');
+    video.setAttribute('webkit-playsinline', '');
+
+    const ensurePlaying = () => {
+      if (document.visibilityState === 'hidden') return;
+
+      if (video.ended) {
+        video.currentTime = 0;
+      }
+
+      if (video.paused) {
+        void video.play().catch(() => {
+          /* may need a user gesture first; interaction handlers will retry */
+        });
+      }
+    };
+
+    const onVisibilityOrFocus = () => {
+      if (document.visibilityState === 'visible') {
+        ensurePlaying();
+      }
+    };
+
+    const onVideoPause = () => {
+      window.requestAnimationFrame(ensurePlaying);
+    };
+
+    const onVideoEnded = () => {
+      video.currentTime = 0;
+      ensurePlaying();
+    };
+
+    ensurePlaying();
+
+    video.addEventListener('loadeddata', ensurePlaying);
+    video.addEventListener('canplay', ensurePlaying);
+    video.addEventListener('ended', onVideoEnded);
+    video.addEventListener('pause', onVideoPause);
+
+    document.addEventListener('visibilitychange', onVisibilityOrFocus);
+    window.addEventListener('focus', onVisibilityOrFocus);
+    document.addEventListener('pointerdown', ensurePlaying, { capture: true });
+    document.addEventListener('touchstart', ensurePlaying, { capture: true, passive: true });
+
+    const watchdog = window.setInterval(ensurePlaying, 2500);
+
+    return () => {
+      window.clearInterval(watchdog);
+      video.removeEventListener('loadeddata', ensurePlaying);
+      video.removeEventListener('canplay', ensurePlaying);
+      video.removeEventListener('ended', onVideoEnded);
+      video.removeEventListener('pause', onVideoPause);
+      document.removeEventListener('visibilitychange', onVisibilityOrFocus);
+      window.removeEventListener('focus', onVisibilityOrFocus);
+      document.removeEventListener('pointerdown', ensurePlaying, true);
+      document.removeEventListener('touchstart', ensurePlaying, true);
+    };
+  }, []);
+
+  const countdownLabel = timeLeft.arrived ? 'Forever begins today' : 'Until we say I do';
+  const liveCountdown = timeLeft.arrived
+    ? 'The wedding day is here'
+    : `${timeLeft.days} days, ${timeLeft.hours} hours, ${timeLeft.minutes} minutes, and ${timeLeft.seconds} seconds until the wedding`;
+
+  return (
+    <div className="relative h-full max-h-[100dvh] w-full overflow-hidden">
+      <style>{`
+        @keyframes invite-twinkle {
+          0%, 100% {
+            opacity: 0.15;
+            transform: scale(0.6) rotate(0deg);
+            filter: drop-shadow(0 0 1px rgba(255, 248, 220, 0.15));
+          }
+          30% {
+            opacity: 0.55;
+            transform: scale(0.88) rotate(10deg);
+            filter: drop-shadow(0 0 3px rgba(255, 248, 220, 0.35));
+          }
+          50% {
+            opacity: 1;
+            transform: scale(1.12) rotate(22deg);
+            filter: drop-shadow(0 0 8px rgba(255, 248, 220, 0.95)) drop-shadow(0 0 14px rgba(212, 175, 55, 0.45));
+          }
+          70% {
+            opacity: 0.65;
+            transform: scale(0.92) rotate(8deg);
+            filter: drop-shadow(0 0 4px rgba(255, 248, 220, 0.4));
+          }
+        }
+        @keyframes invite-twinkle-spark {
+          0%, 100% { opacity: 0.1; transform: scale(0.5); }
+          40% { opacity: 0.35; transform: scale(0.75); }
+          48% { opacity: 1; transform: scale(1.25); filter: drop-shadow(0 0 12px #fff8dc); }
+          52% { opacity: 1; transform: scale(1.15); }
+          60% { opacity: 0.4; transform: scale(0.8); }
+        }
+        .invite-star {
+          transform-origin: center center;
+          will-change: transform, opacity, filter;
+        }
+        .invite-star-default {
+          animation: invite-twinkle var(--dur, 3s) cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+          animation-delay: var(--delay, 0s);
+        }
+        .invite-star-soft {
+          animation: invite-twinkle calc(var(--dur, 3s) * 1.35) cubic-bezier(0.4, 0, 0.6, 1) infinite;
+          animation-delay: var(--delay, 0s);
+        }
+        .invite-star-spark {
+          animation: invite-twinkle-spark calc(var(--dur, 3s) * 0.85) ease-in-out infinite;
+          animation-delay: var(--delay, 0s);
+        }
+        @keyframes invite-tick {
+          0% { transform: translateY(6px); opacity: 0.35; }
+          100% { transform: translateY(0); opacity: 1; }
+        }
+        .invite-tick {
+          display: inline-block;
+          animation: invite-tick 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        @keyframes invite-colon-pulse {
+          0%, 100% { opacity: 0.35; }
+          50% { opacity: 1; }
+        }
+        .invite-colon {
+          animation: invite-colon-pulse 1s steps(1, end) infinite;
+        }
+        .invite-count-unit {
+          min-width: clamp(2.6rem, 8vw, 3.4rem);
+          padding: 0.4rem 0.2rem;
+        }
+        .invite-count-num {
+          font-size: clamp(1.35rem, 4.2vw + 0.35rem, 1.85rem);
+        }
+        .invite-count-label {
+          font-size: clamp(0.4375rem, 0.15vw + 0.4rem, 0.5625rem);
+          letter-spacing: 0.28em;
+        }
+        .invite-count-colon {
+          margin-bottom: 0.85rem;
+          font-size: clamp(0.95rem, 1.6vw + 0.4rem, 1.25rem);
+        }
+        .invite-desktop-header {
+          padding-top: clamp(1.35rem, 5vh, 2.75rem);
+        }
+        .invite-desktop-img-save {
+          margin-top: clamp(2rem, 6.5vh, 4rem);
+        }
+        .invite-kicker {
+          font-size: clamp(0.625rem, 0.2vw + 0.55rem, 0.8125rem);
+          letter-spacing: clamp(0.22em, 0.08em + 0.18vw, 0.34em);
+        }
+        @media (max-width: 767px) {
+          .invite-kicker {
+            margin-top: clamp(1.25rem, 3.75vh, 2rem);
+            margin-bottom: clamp(0.35rem, 1.2vh, 0.65rem);
+            padding-inline: clamp(0.85rem, 6vw, 1.5rem);
+            max-width: min(22rem, 92vw);
+          }
+        }
+        @media (min-width: 768px) {
+          .invite-kicker {
+            margin-top: clamp(0.5rem, 1.2vh, 0.85rem);
+            padding-inline: 0;
+          }
+        }
+        .invite-count-eyebrow {
+          font-size: clamp(0.5625rem, 0.18vw + 0.48rem, 0.75rem);
+          letter-spacing: clamp(0.28em, 0.1em + 0.2vw, 0.42em);
+        }
+        .invite-date-line {
+          font-size: clamp(0.6875rem, 0.25vw + 0.55rem, 1rem);
+          letter-spacing: clamp(0.12em, 0.04em + 0.12vw, 0.22em);
+        }
+        .invite-desktop-body {
+          font-size: clamp(0.8125rem, 0.45vw + 0.62rem, 1.0625rem);
+          line-height: 1.5;
+          max-width: min(32rem, 92%);
+          color: #fffef8;
+          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55), 0 0 14px rgba(255, 248, 220, 0.28);
+        }
+        .invite-rsvp-block {
+          gap: clamp(0.75rem, 2.2vh, 1.35rem);
+          margin-top: clamp(0.85rem, 2.5vh, 1.5rem);
+        }
+        .invite-guest-count {
+          margin-top: clamp(0.85rem, 2.2vh, 1.35rem);
+          margin-bottom: clamp(0.85rem, 3vh, 1.75rem);
+        }
+        .invite-btn-rsvp {
+          font-family: "Prata", "Cormorant Garamond", Georgia, serif;
+          font-size: clamp(0.6875rem, 0.2vw + 0.58rem, 0.875rem);
+          letter-spacing: clamp(0.24em, 0.08em + 0.18vw, 0.32em);
+          padding: clamp(0.65rem, 1.6vh, 0.85rem) clamp(2rem, 8vw, 3.25rem);
+        }
+        .invite-btn-guest {
+          font-family: "Prata", "Cormorant Garamond", Georgia, serif;
+          font-size: clamp(0.6875rem, 0.18vw + 0.55rem, 0.9375rem);
+          letter-spacing: clamp(0.14em, 0.05em + 0.1vw, 0.2em);
+          color: #fffef8;
+          border: 1px solid rgba(212, 175, 55, 0.42);
+          background: rgba(3, 7, 18, 0.45);
+          padding: clamp(0.45rem, 1.2vh, 0.65rem) clamp(0.85rem, 3vw, 1.25rem);
+          border-radius: 9999px;
+          box-shadow: 0 0 18px rgba(212, 175, 55, 0.08);
+        }
+        .invite-btn-guest:hover {
+          color: #fff8dc;
+          border-color: rgba(212, 175, 55, 0.65);
+          background: rgba(212, 175, 55, 0.12);
+          box-shadow: 0 0 22px rgba(212, 175, 55, 0.18);
+        }
+        .invite-rsvp-note {
+          font-family: "Cormorant Garamond", Georgia, serif;
+          font-size: clamp(0.8125rem, 0.35vw + 0.62rem, 0.9375rem);
+          color: rgba(255, 248, 220, 0.88);
+        }
+        .invite-desktop-shell {
+          height: 100%;
+          max-height: 100dvh;
+          overflow: hidden;
+          justify-content: space-between;
+          gap: clamp(0.2rem, 1vh, 0.85rem);
+          padding-top: max(0.5rem, env(safe-area-inset-top));
+          padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+        }
+        @media (min-width: 768px) {
+          .invite-desktop-shell {
+            padding-top: clamp(0.75rem, 2.5vh, 2rem);
+            padding-bottom: clamp(0.75rem, 2.5vh, 2rem);
+            gap: clamp(0.35rem, 1.2vh, 1rem);
+            max-width: min(86vw, 54rem);
+          }
+          .invite-desktop-header,
+          .invite-desktop-footer {
+            flex-shrink: 0;
+            width: 100%;
+          }
+          .invite-desktop-hero {
+            flex: 1 1 auto;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            min-height: 0;
+            width: 100%;
+            padding-top: clamp(0.25rem, 1.5vh, 1rem);
+          }
+          .invite-desktop-header {
+            padding-top: clamp(1.35rem, 4vh, 2.75rem);
+          }
+          .invite-desktop-img-save {
+            width: min(28vw, 20rem) !important;
+            max-width: 100%;
+            margin-top: clamp(1.75rem, 4.5vh, 3.25rem);
+          }
+          .invite-count-unit {
+            min-width: clamp(4.25rem, 5.5vw, 6.25rem);
+            padding: clamp(0.35rem, 0.8vh, 0.75rem) clamp(0.35rem, 0.8vw, 0.85rem);
+          }
+          .invite-count-num {
+            font-size: clamp(2.15rem, 2.2vw + 1.1rem, 3.5rem);
+          }
+          .invite-count-label {
+            font-size: clamp(0.5625rem, 0.12vw + 0.5rem, 0.75rem);
+            letter-spacing: clamp(0.28em, 0.08em + 0.16vw, 0.4em);
+          }
+          .invite-count-colon {
+            margin-bottom: clamp(1rem, 1.6vh, 1.35rem);
+            font-size: clamp(1.25rem, 1.2vw + 0.6rem, 1.85rem);
+          }
+          .invite-desktop-body {
+            font-size: clamp(0.9375rem, 0.35vw + 0.72rem, 1.1875rem);
+            max-width: min(36rem, 88%);
+          }
+        }
+        @media (min-width: 1280px) {
+          .invite-desktop-shell {
+            max-width: min(78vw, 58rem);
+            padding-top: clamp(1.75rem, 5vh, 3.5rem);
+            padding-bottom: clamp(1.5rem, 4.5vh, 3.25rem);
+          }
+          .invite-desktop-img-save {
+            width: min(24vw, 22rem) !important;
+            margin-top: clamp(2rem, 4.75vh, 3.5rem);
+          }
+        }
+        @media (max-height: 740px) {
+          .invite-desktop-header {
+            margin-top: 0 !important;
+            padding-top: clamp(0.35rem, 1.2vh, 0.65rem) !important;
+          }
+          .invite-desktop-img-save {
+            width: min(62vw, 9.5rem) !important;
+            margin-top: clamp(1rem, 3vh, 1.5rem) !important;
+          }
+          .invite-kicker {
+            margin-top: clamp(0.75rem, 2.25vh, 1.15rem) !important;
+            font-size: 0.5625rem !important;
+          }
+          .invite-count-num {
+            font-size: clamp(1.1rem, 3.6vw + 0.25rem, 1.45rem) !important;
+          }
+          .invite-count-unit {
+            min-width: 2.35rem !important;
+            padding: 0.2rem 0.1rem !important;
+          }
+          .invite-count-colon {
+            margin-bottom: 0.55rem !important;
+            font-size: 0.85rem !important;
+          }
+          .invite-desktop-body {
+            margin-top: 0.35rem !important;
+            font-size: 0.75rem !important;
+          }
+          .invite-date-line {
+            margin-top: 0.35rem !important;
+            font-size: 0.625rem !important;
+          }
+          .invite-rsvp-block {
+            margin-top: 0.35rem !important;
+          }
+          .invite-rsvp-note {
+            display: none;
+          }
+        }
+        @media (min-width: 768px) and (max-height: 820px) {
+          .invite-desktop-shell {
+            padding-top: clamp(0.5rem, 1.5vh, 1rem);
+            padding-bottom: clamp(0.5rem, 1.5vh, 1rem);
+            gap: clamp(0.25rem, 0.8vh, 0.65rem);
+          }
+          .invite-desktop-img-save {
+            width: min(22vw, 16rem) !important;
+          }
+          .invite-count-num {
+            font-size: clamp(1.75rem, 1.6vw + 0.9rem, 2.6rem);
+          }
+          .invite-count-unit {
+            min-width: clamp(3.5rem, 4.5vw, 5rem);
+            padding: 0.25rem 0.4rem;
+          }
+        }
+        .invite-bg-video {
+          object-fit: cover;
+          object-position: center;
+          width: 100%;
+          height: 100%;
+        }
+      `}</style>
+
+      <video
+        ref={bgVideoRef}
+        className="invite-bg-video pointer-events-none absolute inset-0 z-0 h-full w-full bg-[#030712]"
+        src={INVITE_STARFIELD_VIDEO}
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload="auto"
+        disablePictureInPicture
+        disableRemotePlayback
+        aria-hidden
+      />
+
+      <div className="pointer-events-none absolute inset-0 bg-[#030712]/22" aria-hidden />
+      <div
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_55%_at_50%_42%,rgba(255,215,100,0.05),transparent_58%)]"
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#030712]/55 via-[#030712]/28 to-[#030712]/62"
+        aria-hidden
+      />
+
+      {sparkles.map((star, i) => (
+        <SparkleStar
+          key={i}
+          {...star}
+          variant={i % 5 === 0 ? 'spark' : i % 2 === 0 ? 'soft' : 'default'}
+        />
+      ))}
+
+      <div className="invite-desktop-shell relative z-30 mx-auto flex w-full max-w-lg flex-col items-center px-3 sm:px-8 md:max-w-none md:px-16 lg:px-20 xl:px-24">
+        <div className="invite-desktop-header relative flex w-full shrink-0 flex-col items-center">
+          <OrnamentalStar
+            gradId="inviteStarGradA"
+            className="absolute -left-0.5 top-0 h-3 w-3 opacity-75 max-[height:680px]:hidden sm:-left-1 sm:h-3.5 sm:w-3.5 md:-left-10 md:-top-3 md:block md:h-7 md:w-7 lg:-left-14 lg:h-8 lg:w-8 xl:-left-16"
+          />
+          <OrnamentalStar
+            gradId="inviteStarGradB"
+            className="absolute -right-0.5 top-0 h-3 w-3 opacity-75 max-[height:680px]:hidden sm:-right-1 sm:h-3.5 sm:w-3.5 md:-right-10 md:-top-3 md:block md:h-7 md:w-7 lg:-right-14 lg:h-8 lg:w-8 xl:-right-16"
+          />
+          <img
+            src="/image/save-the-date.png"
+            alt="Save the Date"
+            className="invite-desktop-img-save h-auto w-[min(68vw,10.5rem)] max-w-full object-contain drop-shadow-[0_3px_18px_rgba(0,0,0,0.7)] animate-fade-in-up sm:w-[min(52vw,14rem)] md:w-[min(28vw,18rem)]"
+          />
+          <p className="invite-kicker max-w-md text-center font-serif uppercase tracking-[0.26em] text-[#fff8dc] [text-shadow:0_1px_3px_rgba(0,0,0,0.85)] animate-fade-in-up sm:tracking-[0.3em]">
+            With joy, we invite you
+          </p>
+        </div>
+
+        <div className="invite-desktop-hero flex min-h-0 w-full flex-1 items-start justify-center overflow-hidden px-2 pt-1 sm:px-4 sm:pt-2 md:px-6 md:items-start">
+          <CoupleParticleNames
+            bride={details.bride}
+            groom={details.groom}
+            className="animate-fade-in-up h-full w-full"
+            style={{ animationDelay: '0.15s' }}
           />
         </div>
 
-        {/* Date - Enhanced for desktop */}
-        <div 
-          className="mt-2 sm:mt-6 lg:mt-8 xl:mt-10 border-y-2 lg:border-y-[3px] border-gray-300 py-2 sm:py-3 lg:py-4 xl:py-5 px-6 sm:px-10 lg:px-14 xl:px-16 animate-fade-in-up bg-gradient-to-r from-white/40 via-white/50 to-white/40 backdrop-blur-sm transition-all duration-500 ease-out hover:scale-105 lg:hover:scale-110 hover:bg-gradient-to-r hover:from-gold/10 hover:via-white/60 hover:to-gold/10 hover:border-gold/40 hover:shadow-md hover:shadow-gold/10 cursor-default group/date"
-          style={{ animationDelay: '0.9s' }}
-        >
-          <span className="font-serif text-base sm:text-2xl lg:text-3xl xl:text-4xl tracking-[0.3em] lg:tracking-[0.4em] font-semibold text-gray-800 uppercase transition-all duration-300 group-hover/date:text-ink group-hover/date:tracking-[0.35em] lg:group-hover/date:tracking-[0.45em]">
-            {details.date}
-          </span>
-        </div>
-
-        {/* Divider / Intro - Enhanced spacing */}
-        <p 
-          className="mt-4 sm:mt-8 lg:mt-10 xl:mt-12 font-body uppercase tracking-[0.2em] lg:tracking-[0.25em] text-[10px] sm:text-sm lg:text-base xl:text-lg text-gray-500 animate-fade-in-up transition-all duration-500 hover:text-gold hover:tracking-[0.25em] lg:hover:tracking-[0.3em] cursor-default"
-          style={{ animationDelay: '1.1s' }}
-        >
-          For the wedding of
-        </p>
-
-        {/* Names - SUPER SIZED & STACKED - Enhanced for desktop */}
-        <div 
-          className="mt-6 sm:mt-10 md:mt-12 lg:mt-14 xl:mt-16 font-script text-ink flex flex-col items-center leading-none animate-fade-in-up drop-shadow-lg group cursor-default"
-          style={{ animationDelay: '1.3s' }}
-        >
-          <span className="text-[3.5rem] sm:text-[6rem] md:text-[7rem] lg:text-[9rem] xl:text-[10rem] transition-all duration-700 ease-in-out group-hover:-translate-y-4 lg:group-hover:-translate-y-6 group-hover:scale-[1.02] lg:group-hover:scale-[1.03] group-hover:text-ink/90 group-hover:drop-shadow-xl">{details.groom}</span>
-          <span className="text-xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl text-gold font-serif italic my-[-8px] sm:my-[-16px] md:my-[-20px] lg:my-[-24px] xl:my-[-28px] z-10 transition-all duration-500 ease-in-out group-hover:rotate-12 lg:group-hover:rotate-15 group-hover:scale-125 lg:group-hover:scale-135 group-hover:text-gold/80 group-hover:drop-shadow-md">&</span>
-          <span className="text-[3.5rem] sm:text-[6rem] md:text-[7rem] lg:text-[9rem] xl:text-[10rem] transition-all duration-700 ease-in-out group-hover:translate-y-4 lg:group-hover:translate-y-6 group-hover:scale-[1.02] lg:group-hover:scale-[1.03] group-hover:text-ink/90 group-hover:drop-shadow-xl">{details.bride}</span>
-        </div>
-
-        {/* Location Text - Enhanced for desktop */}
-         <p 
-            className="mt-4 sm:mt-6 md:mt-8 lg:mt-10 xl:mt-12 font-serif uppercase tracking-widest lg:tracking-[0.2em] text-xs sm:text-base md:text-lg lg:text-xl xl:text-2xl text-gray-700 animate-fade-in-up transition-all duration-700 ease-out hover:tracking-[0.25em] lg:hover:tracking-[0.3em] hover:text-ink hover:font-semibold cursor-default"
-            style={{ animationDelay: '1.5s' }}
+        <div className="invite-desktop-footer mx-auto w-full max-w-sm shrink-0 px-1 text-center sm:max-w-xl md:max-w-3xl lg:max-w-4xl">
+          <div
+            className="animate-fade-in-up mx-auto w-full"
+            style={{ animationDelay: '0.28s' }}
           >
-            {details.location}
-          </p>
-      </div>
-
-      {/* Footer Section: RSVP & Stats - Enhanced layout for desktop */}
-      <div className="mt-2 sm:mt-6 md:mt-8 lg:mt-10 xl:mt-12 w-full max-w-sm lg:max-w-md xl:max-w-lg text-center z-30 mb-4 sm:mb-0 lg:mb-4">
-         <div className="animate-fade-in-up group flex flex-col items-center" style={{ animationDelay: '1.7s' }}>
-            <p className="font-body italic text-gray-600 mb-2 sm:mb-3 lg:mb-4 xl:mb-5 text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl transition-colors duration-500 group-hover:text-gray-800">To board with us, please confirm your seats</p>
-            <div className="font-serif text-[10px] sm:text-xs md:text-sm lg:text-base xl:text-lg tracking-wider text-gray-800 mb-4 sm:mb-5 md:mb-6 lg:mb-7 xl:mb-8 transition-all duration-300 hover:scale-105 lg:hover:scale-110 cursor-pointer hover:text-gold hover:font-semibold px-2 py-1 lg:px-3 lg:py-2 rounded hover:bg-gold/5">
-              {details.rsvpContact}
-            </div>
-            
-            <button 
-              onClick={onRSVP}
-              className="relative isolate bg-gradient-to-br from-ink via-ink to-gray-800 text-paper font-serif uppercase tracking-[0.24em] lg:tracking-[0.3em] text-[10px] sm:text-xs md:text-sm lg:text-base xl:text-lg py-3 sm:py-3.5 md:py-4 lg:py-5 xl:py-6 px-9 sm:px-12 md:px-14 lg:px-18 xl:px-22 rounded-sm transition-all duration-500 shadow-lg shadow-ink/20 hover:shadow-xl hover:shadow-gold/30 hover:-translate-y-1 lg:hover:-translate-y-2 active:translate-y-0 active:shadow-md cursor-pointer focus:outline-none focus:ring-2 focus:ring-gold focus:ring-offset-2 focus:ring-offset-paper overflow-hidden group/btn"
-              aria-label="Confirm your seat for the wedding"
+            <p className="invite-count-eyebrow font-serif uppercase tracking-[0.38em] text-[#fff8dc] [text-shadow:0_1px_2px_rgba(0,0,0,0.55),0_0_12px_rgba(255,248,220,0.25)]">
+              {countdownLabel}
+            </p>
+            <div
+              className="relative mx-auto mt-1 flex w-full max-w-full items-center justify-center gap-0 sm:mt-1.5 md:mt-2 md:gap-1 lg:gap-2"
+              role="timer"
+              aria-label={liveCountdown}
             >
-              <span className="absolute inset-0 -z-10 bg-gradient-to-br from-ink via-ink to-gray-800 group-hover/btn:from-gold group-hover/btn:via-gold/90 group-hover/btn:to-gold transition-colors duration-500" />
-              <span className="relative z-10 flex items-center gap-2 lg:gap-3">
-                <span>Confirm Seat</span>
-                <svg className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 xl:w-6 xl:h-6 transition-transform duration-300 group-hover/btn:translate-x-1 lg:group-hover/btn:translate-x-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </span>
-              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent translate-x-[-120%] group-hover/btn:translate-x-[120%] transition-transform duration-1000" />
-              <span className="pointer-events-none absolute -inset-1 rounded-sm opacity-0 blur-md bg-gold/30 group-hover/btn:opacity-100 transition-opacity duration-500" />
-            </button>
+              <CountdownUnit value={timeLeft.days} label="Days" digits={timeLeft.days >= 100 ? 3 : 2} />
+              <CountdownColon />
+              <CountdownUnit value={timeLeft.hours} label="Hours" />
+              <CountdownColon />
+              <CountdownUnit value={timeLeft.minutes} label="Minutes" />
+              <CountdownColon />
+              <CountdownUnit value={timeLeft.seconds} label="Seconds" />
+            </div>
+            <p className="invite-date-line mt-1.5 font-serif uppercase text-[#fffef8] [text-shadow:0_1px_2px_rgba(0,0,0,0.5),0_0_14px_rgba(255,248,220,0.3)] sm:mt-2">
+              {details.date} · {details.location}
+            </p>
+          </div>
 
-            {/* Guest Counter - Enhanced for desktop */}
-            {guestCount !== null && (
-              <button
-                type="button"
-                onClick={onViewGuestBook}
-                className="mt-4 sm:mt-5 md:mt-6 lg:mt-7 xl:mt-8 inline-flex items-center gap-2 lg:gap-3 text-gray-500 text-xs sm:text-sm lg:text-base xl:text-lg rounded-sm px-2 py-1 lg:px-3 lg:py-2 transition-all duration-300 hover:text-gold hover:bg-gold/5 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-gold focus:ring-offset-2 focus:ring-offset-paper"
-                aria-label={`Open guest book. ${guestCount} ${guestCount === 1 ? 'Guest' : 'Guests'} Confirmed`}
-              >
-                <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5 xl:w-6 xl:h-6" />
-                <span className="font-serif tracking-widest lg:tracking-[0.15em] pb-0.5 lg:pb-1">
-                  {guestCount} {guestCount === 1 ? 'Guest' : 'Guests'} Confirmed
-                </span>
-                {/* <span className="font-serif uppercase tracking-[0.22em] text-[9px] sm:text-[10px] lg:text-xs text-gray-400 group-hover:text-gold/80">
-                  Guest Book
-                </span> */}
-              </button>
-            )}
-         </div>
+          <p
+            className="invite-desktop-body mx-auto mt-1.5 font-body animate-fade-in-up sm:mt-2"
+            style={{ animationDelay: '0.4s' }}
+          >
+            Please join us as we celebrate love, laughter, and the promise of forever.
+          </p>
+
+          <div className="invite-rsvp-block animate-fade-in-up flex flex-col items-center" style={{ animationDelay: '0.52s' }}>
+            <button
+              onClick={onRSVP}
+              className="invite-btn-rsvp group/btn relative isolate overflow-hidden rounded-sm bg-gradient-to-br from-[#d4af37] via-[#c9a227] to-[#8b6914] uppercase text-[#1a1408] shadow-lg shadow-[#d4af37]/25 transition-all duration-500 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-[#d4af37]/40 focus:outline-none focus:ring-2 focus:ring-[#f5e6a8] focus:ring-offset-2 focus:ring-offset-[#030712] active:translate-y-0"
+              aria-label={`RSVP to ${details.bride} and ${details.groom}'s wedding`}
+            >
+              <span className="absolute inset-0 -z-10 bg-gradient-to-br from-[#d4af37] via-[#c9a227] to-[#8b6914] transition-colors duration-500 group-hover/btn:from-[#fff8dc] group-hover/btn:via-[#f5d76e] group-hover/btn:to-[#d4af37]" />
+              <span className="relative z-10">RSVP Now</span>
+              <span className="pointer-events-none absolute -inset-1 rounded-sm bg-[#d4af37]/40 opacity-0 blur-md transition-opacity duration-500 group-hover/btn:opacity-100" />
+            </button>
+            <p className="invite-rsvp-note max-w-xs leading-snug">
+              Your presence would mean the world to us.
+            </p>
+          </div>
+
+          {guestCount !== null && (
+            <button
+              type="button"
+              onClick={onViewGuestBook}
+              className="invite-guest-count invite-btn-guest inline-flex items-center gap-2 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#d4af37] focus:ring-offset-2 focus:ring-offset-[#030712] sm:gap-2.5"
+              aria-label={
+                guestCount === 0
+                  ? 'Open guest book and be among the first to celebrate'
+                  : `Open guest book. ${guestCount} ${guestCount === 1 ? 'guest has' : 'guests have'} confirmed`
+              }
+            >
+              <Users className="h-3.5 w-3.5 text-[#d4af37] sm:h-4 sm:w-4 md:h-5 md:w-5" />
+              <span>
+                {guestCount === 0
+                  ? 'Be among the first to celebrate'
+                  : `${guestCount} ${guestCount === 1 ? 'guest has' : 'guests have'} confirmed`}
+              </span>
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
