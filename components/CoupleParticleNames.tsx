@@ -74,7 +74,7 @@ const CoupleParticleNames: React.FC<Props> = ({ bride, groom, className = '', st
           min-height: 12rem;
           max-height: min(36dvh, 100%);
           margin-inline: auto;
-          transform: translateY(clamp(-1.25rem, -3.5vh, -2.75rem));
+          transform: translateY(clamp(-2rem, -5.25vh, -4rem));
         }
         @media (min-width: 768px) {
           .couple-particle-names__canvas {
@@ -103,7 +103,7 @@ const CoupleParticleNames: React.FC<Props> = ({ bride, groom, className = '', st
             height: 100dvh;
             min-height: 100dvh;
             max-height: none;
-            transform: translateY(clamp(-2.5rem, -10vh, -5.5rem));
+            transform: translateY(clamp(-3.75rem, -13vh, -7.25rem));
           }
         }
       `}</style>

@@ -333,20 +333,35 @@ const InvitationCard: React.FC<Props> = ({ details, onRSVP, guestCount, onViewGu
             padding-inline: 0;
           }
         }
+        .invite-count-heading {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: clamp(0.15rem, 0.45vh, 0.35rem);
+        }
+        .invite-beauty-beast-img {
+          width: min(42vw, 5.25rem);
+          height: auto;
+          margin-inline: auto;
+          object-fit: contain;
+          transform: translateY(clamp(-0.35rem, -1.1vh, -0.7rem));
+          filter: brightness(0) invert(1) drop-shadow(0 1px 8px rgba(255, 255, 255, 0.2));
+          opacity: 0.95;
+        }
+        @media (min-width: 768px) {
+          .invite-beauty-beast-img {
+            width: min(18vw, 6.5rem);
+          }
+        }
         .invite-count-eyebrow {
           font-size: clamp(0.5625rem, 0.18vw + 0.48rem, 0.75rem);
           letter-spacing: clamp(0.28em, 0.1em + 0.2vw, 0.42em);
+          color: #fffef8;
+          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55), 0 0 12px rgba(255, 255, 255, 0.15);
         }
         .invite-date-line {
           font-size: clamp(0.6875rem, 0.25vw + 0.55rem, 1rem);
           letter-spacing: clamp(0.12em, 0.04em + 0.12vw, 0.22em);
-        }
-        .invite-desktop-body {
-          font-size: clamp(0.8125rem, 0.45vw + 0.62rem, 1.0625rem);
-          line-height: 1.5;
-          max-width: min(32rem, 92%);
-          color: #fffef8;
-          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55), 0 0 14px rgba(255, 248, 220, 0.28);
         }
         .invite-rsvp-block {
           gap: clamp(0.75rem, 2.2vh, 1.35rem);
@@ -378,11 +393,6 @@ const InvitationCard: React.FC<Props> = ({ details, onRSVP, guestCount, onViewGu
           border-color: rgba(212, 175, 55, 0.65);
           background: rgba(212, 175, 55, 0.12);
           box-shadow: 0 0 22px rgba(212, 175, 55, 0.18);
-        }
-        .invite-rsvp-note {
-          font-family: "Cormorant Garamond", Georgia, serif;
-          font-size: clamp(0.8125rem, 0.35vw + 0.62rem, 0.9375rem);
-          color: rgba(255, 248, 220, 0.88);
         }
         .invite-desktop-shell {
           height: 100%;
@@ -437,10 +447,6 @@ const InvitationCard: React.FC<Props> = ({ details, onRSVP, guestCount, onViewGu
             margin-bottom: clamp(1rem, 1.6vh, 1.35rem);
             font-size: clamp(1.25rem, 1.2vw + 0.6rem, 1.85rem);
           }
-          .invite-desktop-body {
-            font-size: clamp(0.9375rem, 0.35vw + 0.72rem, 1.1875rem);
-            max-width: min(36rem, 88%);
-          }
         }
         @media (min-width: 1280px) {
           .invite-desktop-shell {
@@ -477,19 +483,12 @@ const InvitationCard: React.FC<Props> = ({ details, onRSVP, guestCount, onViewGu
             margin-bottom: 0.55rem !important;
             font-size: 0.85rem !important;
           }
-          .invite-desktop-body {
-            margin-top: 0.35rem !important;
-            font-size: 0.75rem !important;
-          }
           .invite-date-line {
             margin-top: 0.35rem !important;
             font-size: 0.625rem !important;
           }
           .invite-rsvp-block {
             margin-top: 0.35rem !important;
-          }
-          .invite-rsvp-note {
-            display: none;
           }
         }
         @media (min-width: 768px) and (max-height: 820px) {
@@ -583,9 +582,17 @@ const InvitationCard: React.FC<Props> = ({ details, onRSVP, guestCount, onViewGu
             className="animate-fade-in-up mx-auto w-full"
             style={{ animationDelay: '0.28s' }}
           >
-            <p className="invite-count-eyebrow font-serif uppercase tracking-[0.38em] text-[#fff8dc] [text-shadow:0_1px_2px_rgba(0,0,0,0.55),0_0_12px_rgba(255,248,220,0.25)]">
-              {countdownLabel}
-            </p>
+            <div className="invite-count-heading">
+              <img
+                src="/image/beauty-and-beast.png"
+                alt=""
+                aria-hidden
+                className="invite-beauty-beast-img block"
+              />
+              <p className="invite-count-eyebrow font-serif uppercase tracking-[0.38em]">
+                {countdownLabel}
+              </p>
+            </div>
             <div
               className="relative mx-auto mt-1 flex w-full max-w-full items-center justify-center gap-0 sm:mt-1.5 md:mt-2 md:gap-1 lg:gap-2"
               role="timer"
@@ -604,14 +611,7 @@ const InvitationCard: React.FC<Props> = ({ details, onRSVP, guestCount, onViewGu
             </p>
           </div>
 
-          <p
-            className="invite-desktop-body mx-auto mt-1.5 font-body animate-fade-in-up sm:mt-2"
-            style={{ animationDelay: '0.4s' }}
-          >
-            Please join us as we celebrate love, laughter, and the promise of forever.
-          </p>
-
-          <div className="invite-rsvp-block animate-fade-in-up flex flex-col items-center" style={{ animationDelay: '0.52s' }}>
+          <div className="invite-rsvp-block animate-fade-in-up flex flex-col items-center" style={{ animationDelay: '0.4s' }}>
             <button
               onClick={onRSVP}
               className="invite-btn-rsvp group/btn relative isolate overflow-hidden rounded-sm bg-gradient-to-br from-[#d4af37] via-[#c9a227] to-[#8b6914] uppercase text-[#1a1408] shadow-lg shadow-[#d4af37]/25 transition-all duration-500 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-[#d4af37]/40 focus:outline-none focus:ring-2 focus:ring-[#f5e6a8] focus:ring-offset-2 focus:ring-offset-[#030712] active:translate-y-0"
@@ -621,9 +621,6 @@ const InvitationCard: React.FC<Props> = ({ details, onRSVP, guestCount, onViewGu
               <span className="relative z-10">RSVP Now</span>
               <span className="pointer-events-none absolute -inset-1 rounded-sm bg-[#d4af37]/40 opacity-0 blur-md transition-opacity duration-500 group-hover/btn:opacity-100" />
             </button>
-            <p className="invite-rsvp-note max-w-xs leading-snug">
-              Your presence would mean the world to us.
-            </p>
           </div>
 
           {guestCount !== null && (
