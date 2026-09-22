@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo } from 'react';
+import { useAudio } from '@/contexts/audio-context';
 
 interface LoadingListProps {
   onComplete: () => void;
@@ -152,9 +153,32 @@ function OrnamentalStar({ className, gradId = 'loadingStarGrad' }: { className?:
 }
 
 const LoadingList: React.FC<LoadingListProps> = ({ onComplete }) => {
+  const { audioRef } = useAudio();
   const sparkles = useMemo(() => SPARKLE_LAYOUT, []);
   const daysUntil = useMemo(() => getDaysUntilWedding(new Date(), WEDDING_DAY), []);
   const daysLabel = daysUntil === 1 ? 'more day to go' : 'more days to go';
+
+  useEffect(() => {
+    const audioEl = audioRef.current;
+    if (!audioEl) return;
+
+    audioEl.loop = true;
+
+    const startMusic = async () => {
+      try {
+        await audioEl.play();
+      } catch {
+        audioEl.muted = true;
+        try {
+          await audioEl.play();
+        } catch {
+          audioEl.muted = false;
+        }
+      }
+    };
+
+    void startMusic();
+  }, [audioRef]);
 
   useEffect(() => {
     const timer = setTimeout(onComplete, LOADING_MS);

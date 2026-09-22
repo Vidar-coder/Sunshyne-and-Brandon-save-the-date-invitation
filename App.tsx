@@ -3,7 +3,6 @@ import InvitationCard from './components/InvitationCard';
 import LoadingList from './components/LoadingList';
 import RSVPModal from './components/RSVPModal';
 import GuestBookModal from './components/GuestBookModal';
-import BackgroundMusic from './components/BackgroundMusic';
 import Layout from './components/Layout';
 import { InvitationDetails } from './types';
 import {
@@ -68,9 +67,6 @@ const App: React.FC = () => {
           {/* Modals Layer */}
           <RSVPModal isOpen={showRSVP} onClose={() => setShowRSVP(false)} />
           <GuestBookModal isOpen={showGuestBook} onClose={() => setShowGuestBook(false)} />
-          
-          {/* Background Music */}
-          <BackgroundMusic />
         </>
       )}
       </div>
