@@ -13,9 +13,6 @@ const WEDDING_PLACE = 'Davao City';
 /** Wedding day shown on the loading screen (local calendar date). */
 const WEDDING_DAY = new Date(2027, 7, 14);
 
-const INFINITY_PATH =
-  'M93.9,46.4c9.3,9.5,13.8,17.9,23.5,17.9s17.5-7.8,17.5-17.5s-7.8-17.6-17.5-17.5c-9.7,0.1-13.3,7.2-22.1,17.1c-8.9,8.8-15.7,17.9-25.4,17.9s-17.5-7.8-17.5-17.5s7.8-17.5,17.5-17.5S86.2,38.6,93.9,46.4z';
-
 function getDaysUntilWedding(from: Date, weddingDay: Date): number {
   const start = new Date(from.getFullYear(), from.getMonth(), from.getDate());
   const end = new Date(weddingDay.getFullYear(), weddingDay.getMonth(), weddingDay.getDate());
@@ -104,35 +101,18 @@ function SparkleStar({
   );
 }
 
-function InfinityLoader() {
+function OpeningEnvelopeLoader() {
   return (
-    <div className="relative mx-auto h-9 w-[4.5rem] sm:h-11 sm:w-24 md:h-12 md:w-28 lg:h-14 lg:w-32" aria-hidden>
-      <svg
-        className="absolute left-1/2 top-1/2 h-full w-full -translate-x-1/2 -translate-y-1/2"
-        preserveAspectRatio="xMidYMid meet"
-        viewBox="0 0 187.3 93.7"
-      >
-        <path
-          d={INFINITY_PATH}
-          fill="none"
-          stroke="#d4af37"
-          strokeWidth="4"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeMiterlimit={10}
-          opacity={0.15}
-        />
-        <path
-          className="loading-infinity-outline"
-          d={INFINITY_PATH}
-          fill="none"
-          stroke="#f5e6a8"
-          strokeWidth="4"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeMiterlimit={10}
-        />
-      </svg>
+    <div
+      className="loading-envelope relative mx-auto h-10 w-[4.75rem] sm:h-12 sm:w-[5.75rem] md:h-[3.25rem] md:w-28 lg:h-14 lg:w-32"
+      aria-hidden
+    >
+      <div className="loading-envelope__scene">
+        <div className="loading-envelope__back" />
+        <div className="loading-envelope__letter" />
+        <div className="loading-envelope__pocket" />
+        <div className="loading-envelope__flap" />
+      </div>
     </div>
   );
 }
@@ -240,23 +220,84 @@ const LoadingList: React.FC<LoadingListProps> = ({ onComplete }) => {
         .loading-deco-corner {
           animation: loading-deco-breathe 4s ease-in-out infinite;
         }
-        .loading-infinity-outline {
-          stroke-dasharray: 2.42777px, 242.77666px;
-          stroke-dashoffset: 0;
-          animation: loading-infinity-anim 1.6s linear infinite;
+        .loading-envelope {
+          perspective: 520px;
+          overflow: visible;
         }
-        @keyframes loading-infinity-anim {
-          12.5% {
-            stroke-dasharray: 33.98873px, 242.77666px;
-            stroke-dashoffset: -26.70543px;
+        .loading-envelope__scene {
+          position: relative;
+          width: 100%;
+          height: 100%;
+          transform-style: preserve-3d;
+          overflow: visible;
+        }
+        .loading-envelope__back {
+          position: absolute;
+          inset: 18% 0 0;
+          z-index: 1;
+          border-radius: 2px;
+          background: linear-gradient(165deg, #3d3218 0%, #1a1508 55%, #0f0c06 100%);
+          border: 1px solid rgba(212, 175, 55, 0.55);
+          box-shadow: inset 0 1px 0 rgba(255, 248, 220, 0.12);
+        }
+        .loading-envelope__letter {
+          position: absolute;
+          left: 8%;
+          right: 8%;
+          bottom: 12%;
+          z-index: 2;
+          height: 58%;
+          border-radius: 1px;
+          background: linear-gradient(180deg, #fffef5 0%, #f5ecd8 100%);
+          border: 1px solid rgba(212, 175, 55, 0.35);
+          box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.35);
+          animation: loading-envelope-letter 9s ease-in-out forwards;
+        }
+        .loading-envelope__pocket {
+          position: absolute;
+          inset: 0;
+          z-index: 3;
+          background: linear-gradient(180deg, transparent 42%, #2a2210 42%, #151108 100%);
+          clip-path: polygon(0 45%, 50% 78%, 100% 45%, 100% 100%, 0 100%);
+          border: 1px solid rgba(212, 175, 55, 0.5);
+          border-top: none;
+          border-radius: 0 0 2px 2px;
+          pointer-events: none;
+        }
+        .loading-envelope__flap {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 52%;
+          z-index: 6;
+          transform-origin: top center;
+          transform-style: preserve-3d;
+          backface-visibility: visible;
+          opacity: 1;
+          visibility: visible;
+          background: linear-gradient(180deg, #f5e6a8 0%, #c9a227 38%, #8b6914 72%, #d4af37 100%);
+          clip-path: polygon(0 0, 100% 0, 50% 100%);
+          border: 1px solid rgba(255, 248, 220, 0.35);
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.45);
+          animation: loading-envelope-flap 9s ease-in-out forwards;
+        }
+        @keyframes loading-envelope-flap {
+          0%, 22% {
+            transform: rotateX(0deg);
           }
-          43.75% {
-            stroke-dasharray: 84.97183px, 242.77666px;
-            stroke-dashoffset: -84.97183px;
+          48%, 100% {
+            transform: rotateX(-168deg);
+            opacity: 1;
+            visibility: visible;
           }
-          100% {
-            stroke-dasharray: 2.42777px, 242.77666px;
-            stroke-dashoffset: -240.34889px;
+        }
+        @keyframes loading-envelope-letter {
+          0%, 30% {
+            transform: translateY(0);
+          }
+          55%, 100% {
+            transform: translateY(-22%);
           }
         }
         @media (min-width: 768px) {
@@ -461,7 +502,7 @@ const LoadingList: React.FC<LoadingListProps> = ({ onComplete }) => {
         <p className="loading-desktop-loader-label mb-1 text-center font-serif text-[10px] uppercase tracking-[0.24em] text-[#f5e6a8]/80 sm:text-xs sm:tracking-[0.3em]">
           Opening your invitation
         </p>
-        <InfinityLoader />
+        <OpeningEnvelopeLoader />
       </div>
     </div>
   );

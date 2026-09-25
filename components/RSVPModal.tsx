@@ -134,7 +134,7 @@ const RSVPModal: React.FC<Props> = ({ isOpen, onClose }) => {
                     name="guests"
                     className="w-full cursor-pointer appearance-none border-b border-[#d4af37]/25 bg-[#030712]/35 px-1 py-1.5 font-body text-sm text-[#fffef8] focus:border-[#d4af37] focus:bg-[#030712]/55 focus:outline-none sm:py-2 sm:text-base md:text-lg"
                   >
-                    {[1, 2, 3, 4, 5].map(n => <option key={n} value={n} className="bg-[#0c1424]">{n} {n === 1 ? 'Guest' : 'Guests'}</option>)}
+                    {[1, 2, 3].map(n => <option key={n} value={n} className="bg-[#0c1424]">{n} {n === 1 ? 'Guest' : 'Guests'}</option>)}
                   </select>
                   <div className="pointer-events-none absolute right-0 top-1/2 -translate-y-1/2 text-[#fff8dc]/50">
                      <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
